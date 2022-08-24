@@ -2,7 +2,7 @@
 
 Files to support a process to form accounting splits from Australian ETF
 Annual Statements for loading into GnuCash. The process creates a pivot
-table, determines deposits based on CR/DB lables and forms a multisplit csv
+table, determines deposits based on CR/DB labels and forms a multi-split csv
 file.
 
 ## Usage
@@ -10,6 +10,12 @@ file.
 ETF statement values like the sample VAS-annual-tax-statement-2018.png is
 loaded into ETF-Annual-Statement.xlsx and saved as a csv file. This could be
 automated.
+
+The spreadsheet looks like an obvious candidate for putting the cursor in cell
+`A1` and using the built-in form functionality. It's not without adding a
+character, say a `.` in column `A` of empty rows, hiding the rows calculated
+with a formula, and considering the cells with calculated suggestions that
+need overwriting. Perhaps this is achievable with a custom form or macro.
 
 Run `py contribution_split.py ETF-Annual-Statement` to convert the
 ETF-Annual-Statement.csv csv file into a csv file that can be loaded into
@@ -19,7 +25,7 @@ printed to the console as a check for a balanced transaction.
 In GnuCash use:
 1. File, Import, Import Transactions from csv,
 1. Next, Select ETF-Annual-Statement_split.csv, Next,
-1. Leading lines to skip: 1, Date format: d-m-y, Select Multisplit
+1. Leading lines to skip: 1, Date format: d-m-y, Select Multi-split
 1. Select Date, Description, Account, Deposit, Next
 1. Map Account ID to Account Name, Next, Next, Close
 
