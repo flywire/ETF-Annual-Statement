@@ -1,26 +1,110 @@
 # ETF-Annual-Statement
 
-Files to support a process to form accounting splits from Australian ETF
-Annual Statements for loading into GnuCash. The process creates a pivot
-table, determines deposits based on CR/DB labels and forms a multi-split csv
-file.
+Reporting for multiple Australian ETF Annual Tax Statements.
+
+## Objectives
+
+Read the data from the Australian ETF Annual Tax Statements and reformat it as
+a split transaction to load into a cashbook (eg GnuCash).
+If the format is particularly different users can use the example file as a
+template to create an intermediate csv file and load that.
+
+## Installation
+
+Windows users should look for `etf2cb.exe` and download it if it is available
+then skip to the next section.
+
+---
+
+Python software can optionally be installed in a virtual environment to
+eliminate system conflicts as described
+[here](https://docs.python.org/3/library/venv.html).
+eg in the desired folder for Windows:
+
+```
+python -m venv ./venv/etf2cb
+.\venv\etf2cb\scripts\activate
+cd .\venv\etf2cb
+```
+Use `deactivate` to return to the normal system.
+
+```
+pip install git+https://github.com/flywire/ETF-Annual-Statement.git@main
+```
+
+### Troubleshooting
+
+This package uses [tabula-py](https://github.com/chezou/tabula-py) under the
+hood, which itself is a wrapper for
+[tabula-java](https://github.com/tabulapdf/tabula-java).
+
+Windows & Linux users will need a copy of Java installed. You can download
+Java [here](https://www.java.com/download/).
 
 ## Usage
 
-ETF statement values like the sample VAS-annual-tax-statement-2018.png is
-loaded into ETF-Annual-Statement.xlsx and saved as a csv file. This could be
-automated.
+Start a command prompt.
 
-The spreadsheet looks like an obvious candidate for putting the cursor in cell
-`A1` and using the built-in form functionality. It's not without adding a
-character, say a `.` in column `A` of empty rows, hiding the rows calculated
-with a formula, and considering the cells with calculated suggestions that
-need overwriting. Perhaps this is achievable with a custom form or macro.
+If you downloaded `etf2cb.exe` then run it without the `python` prefix or
+`.py` extension, but otherwise it is the same.
 
-Run `py contribution_split.py ETF-Annual-Statement` to convert the
-ETF-Annual-Statement.csv csv file into a csv file that can be loaded into
-GnuCash. For each Entity/Date/Description record the rounding Account is
-printed to the console as a check for a balanced transaction.
+Alternatively,
+
+```
+python etf2cb.py -h
+usage: etf2cb.py [-h] filename [area]
+
+Extract ETF Annual Statement transaction component splits
+
+positional arguments:
+  filename    Provide filename to extract
+  area        Table area reference required for pdf file
+
+options:
+  -h, --help  show this help message and exit
+
+Filenames with .csv extension are processed directly without pdf extract
+```
+
+Amounts will be extracted from the given pdf using the area reference unless
+run on a '.csv' file.
+The configuration is a list of ETF providers containing a list of pages with
+a list of tabular areas.
+
+Tax account configuration is required in a user configurable `tax-acc.csv`
+file containing the following fields:
+
+1. `Label` - first part uses tax codes, second part uses strings in pdf labels
+1. `Description` - details are optional
+1. `Type` - 'CR' or 'DB' account
+1. `Account` - users cashbook chart of account code
+
+Many things can fail with this automated process.
+Users should validate output manually.
+The first check is all deposit amounts should add to zero.
+
+## Customising
+
+1. `area` must be specified to extract data from pdf
+1. `tax-acc.csv` must be configured for each label
+
+## Sample Output
+
+```csv
+Entity,Date,Description,Account,Deposit
+X0123456789,30/06/2018,VAS,Income:Distribution:13U,-3606.42
+X0123456789,30/06/2018,VAS,Income:Distribution:13C,-22870.71
+X0123456789,30/06/2018,VAS,Income:Distribution:13Q,7069.35
+X0123456789,30/06/2018,VAS,Income:Distribution:18H:18A,-1568.43
+X0123456789,30/06/2018,VAS,Income:Distribution:18H:GCTGrossUp,-1567.05
+X0123456789,30/06/2018,VAS,Income:Distribution:20E/20M,-463.54
+X0123456789,30/06/2018,VAS,Income:Distribution:20O,15.64
+X0123456789,30/06/2018,VAS,Asset:Shares:CostBase,-62.21
+X0123456789,30/06/2018,VAS,Income:Distribution,23053.38
+X0123456789,30/06/2018,VAS,Income:Distribution:Rounding,-0.01
+```
+
+There are many ways to accumulate the splits for all ETFs by entity and year.
 
 In GnuCash use:
 1. File, Import, Import Transactions from csv,
@@ -28,25 +112,3 @@ In GnuCash use:
 1. Leading lines to skip: 1, Date format: d-m-y, Select Multi-split
 1. Select Date, Description, Account, Deposit, Next
 1. Map Account ID to Account Name, Next, Next, Close
-
-## Customising
-
-The first three columns contain the index rows and subsequent columns data.
-Data columns and supporting rows can be added and deleted as required but CR
-and DB totals should be adjusted for Rounding check.
-
-## Sample Output
-
-```csv
-Entity,Date,Description,Account,Deposit
-Super,30/06/2018,VAS,Income:Distribution:13U,-3606.42
-Super,30/06/2018,VAS,Income:Distribution:13C,-22870.71
-Super,30/06/2018,VAS,Income:Distribution:13Q,7069.35
-Super,30/06/2018,VAS,Income:Distribution:18H:18A,-1568.43
-Super,30/06/2018,VAS,Income:Distribution:18H:GCTGrossUp,-1567.05
-Super,30/06/2018,VAS,Income:Distribution:20E/20M,-463.54
-Super,30/06/2018,VAS,Income:Distribution:20O,15.64
-Super,30/06/2018,VAS,Income:Distribution,23053.38
-Super,30/06/2018,VAS,Asset:Shares:CostBase,-62.21
-Super,30/06/2018,VAS,Income:Distribution:Rounding,-0.01
-```

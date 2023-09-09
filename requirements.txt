@@ -1,0 +1,3 @@
+tabula-py
+# next line for developers
+# pyinstaller

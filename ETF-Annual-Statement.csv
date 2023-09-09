@@ -1,8 +1,0 @@
-Entity,Date,Description,10L,13U,13C,13Y,13Q,13R,13A,18A,18H,Gross Up,20E,20M,20F,20O,Gross Dist,Non-attributable,Gross Attrib,-Cost Base,CostBase,ETF,CR,DR,Rounding
-,,,Gross Interest,Trust Income,Franked Trust Income,Other Distribution Deductions,Franking Credits,Tax Withheld,Credit for Foreign Tax Withheld,Net Capital Gain,info,info,Foreign Income,,Franking Credits NZ companies,Foreign income tax,,,,,,,,,
-Tax Label,,,Gross Interest 10L,"Share of net income from trusts, less net capital gains, foreign income and franked distributions 13U",Franked distributions from trusts 13C,Other deductions relating to distributions 13Y,Share of franking credits from franked dividends 13Q,Share of credit for TFN amounts withheld 13R,Share of credit for foreign resident withholding amounts 13A,Net capital gain 18A,Total current year capital gains 18H,AMIT Gross Up,Assessable foreign source income 20E,Other net foreign source income 20M,Franking Credits NZ companies 20F,Foreign income tax offset 20O,,,,,,,,,
-Type,,,DR,DR,DR,DR,CR,CR,CR,DR,,DR,DR,,CR,CR,CR,DR,,DR,CR,CR,,,DR
-Account,,,Income:Distribution:10L,Income:Distribution:13U,Income:Distribution:13C,Income:Distribution:13Y,Income:Distribution:13Q,Income:Distribution:13R,Income:Distribution:13A,Income:Distribution:18H:18A,,Income:Distribution:18H:GCTGrossUp,Income:Distribution:20E/20M,,Income:Distribution:20F,Income:Distribution:20O,Income:Distribution,Income:Distribution:Non-attributable,,,Asset:Shares:CostBase,Expense:ETF,,,Income:Distribution:Rounding
-,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,
-Super,30/06/2018,VAS,,3606.42,22870.71,,7069.35,,,1568.43,3135.48,1567.05,463.54,463.54,,15.64,23053.38,,318.24,62.21,-62.21,,30076.16,30076.15,0.0100000000020373
