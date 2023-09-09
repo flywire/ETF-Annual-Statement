@@ -1,0 +1,7 @@
+.*
+!/.gitignore
+!/.github
+_*/
+build/
+dist/
+*.bak
