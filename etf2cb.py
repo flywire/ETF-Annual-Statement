@@ -2,7 +2,6 @@
 """Get ETF Tax Contribution Splits from Annual Transaction Statement pdf."""
 
 from dateutil import parser
-from tabula_area import area
 import argparse
 import csv
 import datetime
@@ -24,6 +23,25 @@ def get_args():
         "area", nargs="?", help="Table area reference required for pdf file"
     )
     return parser.parse_args()
+
+
+def get_tabular_area(filename):
+    """return nested list of tabular table areas."""
+    area = []
+    with open(filename) as csv_file:
+        csv_list = list(csv.reader(csv_file))
+        for r in csv_list[1:]:
+            if r[0] != '':
+                e = r[0]
+                area.append([e])
+                ie = len(area)-1
+            if r[1] != '':
+                p = r[1]
+                area[ie].append([p])
+                ip = len(area[ie])-1
+                area[ie][ip].append([])
+            area[ie][ip][1].append([int(r[c]) for c in range(2, 6)])
+    return area
 
 
 def csv_dictionary(filename):
@@ -172,6 +190,8 @@ def main():
             raise TypeError("area argument required if no .csv filename extension")
         else:
             # Get table from pdf
+            area = get_tabular_area('tabula-area.csv')
+            # Catch exception when tabula_area not found
             pdf = (
                 args.filename
                 if args.filename[-4:].lower() == ".pdf"

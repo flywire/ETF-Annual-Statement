@@ -4,10 +4,10 @@ Reporting for multiple Australian ETF Annual Tax Statements.
 
 ## Objectives
 
-Read the data from the Australian ETF Annual Tax Statements and reformat it as
+* Read the data from the Australian ETF Annual Tax Statements and reformat it as
 a split transaction to load into a cashbook (eg GnuCash).
-If the format is particularly different users can use the example file as a
-template to create an intermediate csv file and load that.
+* If the pdf format is not directly supported the intermediate csv file can be
+reworked using the example file as a template before loading the csv file.
 
 ## Installation
 
@@ -45,8 +45,8 @@ Java [here](https://www.java.com/download/).
 
 Start a command prompt.
 
-If you downloaded `etf2cb.exe` then run it without the `python` prefix or
-`.py` extension, but otherwise it is the same.
+If you downloaded `etf2cb.exe` it is run without the `python` prefix or `.py`
+extension, but otherwise it is the same.
 
 Alternatively,
 
@@ -66,27 +66,27 @@ options:
 Filenames with .csv extension are processed directly without pdf extract
 ```
 
-Amounts will be extracted from the given pdf using the area reference unless
-run on a '.csv' file.
-The configuration is a list of ETF providers containing a list of pages with
-a list of tabular areas.
+Many things can fail with this automated process so users should validate the
+output manually.
+Firstly, check the total of all deposit amounts is zero.
 
-Tax account configuration is required in a user configurable `tax-acc.csv`
+## Customising
+
+Amounts will be extracted from the pdf using the area reference unless run on
+a `.csv` file.
+
+1. `tabula-area.csv` must be specified to extract data from pdf
+1. `tax-acc.csv` must be configured for each label
+
+The `tabula-area.csv` file in the distribution is user-configurable.
+
+Tax account configuration is required in a user-configurable `tax-acc.csv`
 file containing the following fields:
 
 1. `Label` - first part uses tax codes, second part uses strings in pdf labels
 1. `Description` - details are optional
 1. `Type` - 'CR' or 'DB' account
 1. `Account` - users cashbook chart of account code
-
-Many things can fail with this automated process.
-Users should validate output manually.
-The first check is all deposit amounts should add to zero.
-
-## Customising
-
-1. `area` must be specified to extract data from pdf
-1. `tax-acc.csv` must be configured for each label
 
 ## Sample Output
 
