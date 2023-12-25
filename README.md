@@ -116,8 +116,11 @@ X0123456789,30/06/2018,VAS,Income:Distribution:Rounding,-0.01
 ```
 
 There are many ways to accumulate the splits for all ETFs by entity and year.
+
 A simple way is to concatenate all csv files then open it in a spreadsheet
 and do a pivot table.
+For example, Pivot Table Layout:
+Filters - [ETF] Description, Row Fields - Account, Data Fields - Sum Deposit.
 
 In GnuCash use:
 1. File, Import, Import Transactions from csv,
