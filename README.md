@@ -128,3 +128,8 @@ In GnuCash use:
 1. Leading lines to skip: 1, Date format: d-m-y, Select Multi-split
 1. Select Date, Description, Account, Deposit, Next
 1. Map Account ID to Account Name, Next, Next, Close
+
+
+## License
+
+This project is licensed under the terms of the GNU GPLv3 license.
