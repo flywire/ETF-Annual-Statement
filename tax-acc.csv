@@ -14,17 +14,17 @@ Label,Description,Type,Account
 20O,Foreign income tax offset,CR,Income:Distribution:20O
 Non-attributable,,DB,Income:Distribution:Non-attributable
 Non-assessable non-exempt amount,,DB,Distribution: Non-assessable
-Net exempt income,,,
-Other non-attributable amounts,,,
+Net exempt income,,skip,
+Other non-attributable amounts,,skip,
 Total Non-assessable amounts,,skip,
 Gross Amount,,skip,
 Gross cash distribution,,skip,
 AMIT cost base net amount - excess,,DB,Asset:Shares:CostBase
 AMIT cost base net amount - shortfall,,CR,Asset:Shares:CostBase
-TFN amounts withheld,,skip,
+TFN amounts withheld,,CR,Income:Distribution:TaxWithheld
 non-resident withholding tax,,skip,
-- Interest / dividend amounts withheld,,skip,
-- Fund payment amounts withheld,,skip,
+- Interest / dividend amounts withheld,,CR,Income:Distribution:TaxWithheld
+- Fund payment amounts withheld,,CR,Income:Distribution:TaxWithheld
 Less other expenses,,CR,Expense
 Wrap,,CR,Expense:Wrap
 Cash Distribution,,CR,Income:Distribution
