@@ -1,0 +1,31 @@
+Label,Description,Type,Account
+10L,Gross Interest,DB,Income:Distribution:10L
+13U,"Share of net income from trusts, less net capital gains, foreign income and franked distributions",DB,Income:Distribution:13U
+13C,Franked distributions from trusts,DB,Income:Distribution:13C
+13Y,Other deductions relating to distributions,DB,Income:Distribution:13Y
+13Q,Share of franking credits from franked dividends,CR,Income:Distribution:13Q
+13R,Share of credit for TFN amounts withheld,CR,Income:Distribution:13R
+13A,Share of credit for foreign resident withholding amounts,CR,Income:Distribution:13A
+18A,Net capital gain,DB,Income:Distribution:18H:18A
+18H,Total current year capital gains,,
+20E,Assessable foreign source income,DB,Income:Distribution:20E/20M
+20M,Other net foreign source income,,
+20F,Franking Credits NZ companies,CR,Income:Distribution:20F
+20O,Foreign income tax offset,CR,Income:Distribution:20O
+Non-attributable,,DB,Income:Distribution:Non-attributable
+Non-assessable non-exempt amount,,DB,Distribution: Non-assessable
+Net exempt income,,skip,
+Other non-attributable amounts,,skip,
+Total Non-assessable amounts,,skip,
+Gross Amount,,skip,
+Gross cash distribution,,skip,
+AMIT cost base net amount - excess,,DB,Asset:Shares:CostBase
+AMIT cost base net amount - shortfall,,CR,Asset:Shares:CostBase
+TFN amounts withheld,,CR,Income:Distribution:TaxWithheld
+non-resident withholding tax,,skip,
+- Interest / dividend amounts withheld,,CR,Income:Distribution:TaxWithheld
+- Fund payment amounts withheld,,CR,Income:Distribution:TaxWithheld
+Less other expenses,,CR,Expense
+Wrap,,CR,Expense:Wrap
+Cash Distribution,,CR,Income:Distribution
+Rounding,,CR,Income:Distribution:Rounding
