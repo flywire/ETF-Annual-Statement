@@ -228,7 +228,7 @@ def main():
         #     print("Part B header - Invalid")
         # Row key
         key = []
-        key.append(re.sub("\s+", '', ats_list[1][0])) # remove whitespace
+        key.append(re.sub(r"\s+", '', ats_list[1][0])) # remove whitespace
         key.append(parser.parse(ats_list[2][0]).date().strftime("%d/%m/%Y"))
         key.append(ats_list[0][0])
         # Do parts
