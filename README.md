@@ -70,10 +70,14 @@ Firstly, check the total of all deposit amounts is zero.
 
 ## Advanced Commands
 
-* wildcards for a folder:
-    `for %f in (tax\v*.pdf) do etf2cb %f vanguard`
-* concatenate files with manual confirm:
-    `copy tax\*split.csv tax\all_splits.csv`
+Wildcards for a folder:
+
+    for %f in (tax\v*.pdf) do etf2cb %f vanguard
+
+Concatenate files:
+    
+    echo Entity,Date,Description,Account,Deposit > tax\all_splits.csv & type *split.csv >> tax\all_splits.csv
+
 
 ## Customising
 
