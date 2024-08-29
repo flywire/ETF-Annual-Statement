@@ -105,9 +105,8 @@ def part_a(acc_dict, ats_list, idx_b, key, balance, writer):
                 ncg = amount
             elif label == "18H":
                 amount = "-" + amount
-                amount = str(
-                    (int(amount.replace(".", "")) - int(ncg.replace(".", ""))) / 100
-                )
+                c2d = lambda x: str(x)[:-2]+'.'+str(x)[-2:]
+                amount = c2d((int(amount.replace(".", "")) - int(ncg.replace(".", ""))))
                 account = "Income:Distribution:18H:GCTGrossUp"
             if label != "20M":
                 row, balance = txn_split(key, account, amount, balance)
