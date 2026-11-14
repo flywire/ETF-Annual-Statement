@@ -21,6 +21,9 @@ Gross Amount,,skip,
 Gross cash distribution,,skip,
 AMIT cost base net amount - excess,,DB,Asset:Shares:CostBase
 AMIT cost base net amount - shortfall,,CR,Asset:Shares:CostBase
+Tax-deferred amounts,,DB,Asset:Shares:CostBase
+Return of Capital,,DB,Asset:Shares:CostBase
+Tax-free amounts,,skip,
 TFN amounts withheld,,CR,Income:Distribution:TaxWithheld
 non-resident withholding tax,,skip,
 - Interest / dividend amounts withheld,,CR,Income:Distribution:TaxWithheld

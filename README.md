@@ -1,109 +1,62 @@
-# ETF-Annual-Statement
+# etf2cb
 
-Reporting for multiple Australian ETF Annual Tax Statements.
+Convert Australian ETF Annual Tax Statements (PDF or extracted text) into split transaction CSV files ready to import into accounting programs (such as GnuCash).
 
-## Objectives
-
-* Read the data from the Australian ETF Annual Tax Statements and reformat it as
-a split transaction to load into a cashbook (eg GnuCash).
-* If the pdf format is not directly supported the intermediate csv file can be
-reworked using the example file as a template before loading the csv file.
+## Features
+* **Direct Text Extraction:** Extracts data directly from PDF text without manual coordinate mapping.
+* **Multi-Registry Support:** Parsers currently support pdf/txt statements from:
+  * Computershare
+  * Link Market Services / MUFG Corporate Markets
+  * Automic
+  * Magellan
+  * One Registry Services
+* **Flexible Input Formats:** Accepts `.pdf`, plain-text `.txt` dumps, or normalized `.csv` files.
+* **Customisable Account Mapping:** Maps ATO tax labels and AMIT cost base adjustments to your chart of accounts via `tax-acc.csv`.
 
 ## Installation
 
-Most Windows users will download `etf2cb.exe` and the `*.csv` files
-then skip to the next section.
+### Option 1: Standalone Windows Executable
+Download `etf2cb.exe` and `tax-acc.csv` from the [Releases](../../releases) page and place them in the same directory (or in your PDF statements folder).
 
----
+### Option 2: Run from Source with `uv`
+Install [uv](https://docs.astral.sh/uv/), create a virtual environment, and install the dependencies:
 
-Python software can optionally be installed in a virtual environment to
-eliminate system conflicts as described
-[here](https://docs.python.org/3/library/venv.html).
-eg in the desired folder for Windows:
-
-```
-python -m venv ./venv/etf2cb
-.\venv\etf2cb\scripts\activate
-cd .\venv\etf2cb
-```
-Use `deactivate` to return to the normal system.
-
-```
-pip install git+https://github.com/flywire/ETF-Annual-Statement.git@main
+```bash
+uv venv
+uv pip install -r requirements.txt
 ```
 
-### Troubleshooting
-
-This package uses [tabula-py](https://github.com/chezou/tabula-py) under the
-hood, which itself is a wrapper for
-[tabula-java](https://github.com/tabulapdf/tabula-java).
-
-Windows & Linux users will need a copy of Java installed. You can download
-Java [here](https://www.java.com/download/).
+Check the installed version:
+```bash
+uv run etf2cb.py --version
+```
 
 ## Usage
 
-Start a command prompt.
+### Single Statement
+Process a single PDF or text dump (produces `<filename>_split.csv`):
 
-* run `etf2cb` if you downloaded the Windows executable
-* Alternatively, run under python, for example:
-    `python etf2cb.py`
+```bash
+# Using the compiled executable
+etf2cb.exe "VAS-annual-tax-statement.pdf"
 
-```
-usage: etf2cb [-h] filename [area]
-
-Extract ETF Annual Statement transaction component splits
-
-positional arguments:
-  filename    Provide filename to extract
-  area        Table area reference required for pdf file
-
-options:
-  -h, --help  show this help message and exit
-
-Filenames with .csv extension are processed directly without pdf extract
+# Or from source with uv
+uv run etf2cb.py "VAS-annual-tax-statement.pdf"
 ```
 
-Many things can fail with this automated process so users should validate the
-output manually.
-Firstly, check the total of all deposit amounts is zero.
+### Batch Processing All Statements in a Folder
+Individual `*_split.csv` files are generated without a header row so they can be merged cleanly into a single `all_splits.csv` file.
 
-## Advanced Commands
+**Windows Command Prompt (CMD):**
+```cmd
+del *_split.csv all_splits.csv 2>nul
+for %f in (*.pdf) do etf2cb.exe "%f"
+echo Entity,Date,Description,Account,Deposit > all_splits.csv & type *_split.csv >> all_splits.csv
+```
 
-Wildcards for a folder:
+## Sample Output (`all_splits.csv`)
 
-    for %f in (tax\v*.pdf) do etf2cb %f vanguard
-
-Concatenate files:
-    
-    echo Entity,Date,Description,Account,Deposit > tax\all_splits.csv & type *split.csv >> tax\all_splits.csv
-
-
-## Customising
-
-Amounts will be extracted from the pdf using the area reference unless run on
-a `.csv` file.
-
-1. `tabula-area.csv` must be specified to extract data from pdf
-1. `tax-acc.csv` must be configured for each label
-
-The `tabula-area.csv` file in the distribution is user-configurable,
-For example,
-change the second line to read the address entity instead of the HIN.
-
-Tax account configuration is required in a user-configurable `tax-acc.csv`
-file containing the following fields:
-
-1. `Label` - first part uses tax codes, second part uses strings in pdf labels
-1. `Description` - details are optional
-1. `Type` - `CR` or `DB` account
-1. `Account` - users cashbook chart of account code
-
-## Sample Output
-
-Look at the sample in the `Tax` folder.
-
-    etf2cb tax\VAS-annual-tax-statement-2018 vanguard
+Sample transaction showing splits:
 
 ```csv
 Entity,Date,Description,Account,Deposit
@@ -115,25 +68,58 @@ X0123456789,30/06/2018,VAS,Income:Distribution:18H:GCTGrossUp,-1567.05
 X0123456789,30/06/2018,VAS,Income:Distribution:20E/20M,-463.54
 X0123456789,30/06/2018,VAS,Income:Distribution:20O,15.64
 X0123456789,30/06/2018,VAS,Asset:Shares:CostBase,-62.21
-X0123456789,30/06/2018,VAS,Income:Distribution,23053.38
+X0123456789,30/06/2018,VAS,Income:Distribution:Attributed,23053.38
 X0123456789,30/06/2018,VAS,Income:Distribution:Rounding,-0.01
 ```
 
-There are many ways to accumulate the splits for all ETFs by entity and year.
+## Recommended Data Validation
 
-A simple way is to concatenate all csv files then open it in a spreadsheet
-and do a pivot table.
-For example, Pivot Table Layout:
-Filters - [ETF] Description, Row Fields - Account, Data Fields - Sum Deposit.
+Before using the data, open `all_splits.csv` in a spreadsheet and create a Pivot Table to reconcile against your statements and check your ATO pre-fill report and cashbook:
 
-In GnuCash use:
-1. File, Import, Import Transactions from csv,
-1. Next, Select ETF-Annual-Statement_split.csv, Next,
-1. Leading lines to skip: 1, Date format: d-m-y, Select Multi-split
-1. Select Date, Description, Account, Deposit, Next
-1. Map Account ID to Account Name, Next, Next, Close
+* **Filters:** `Entity`, `Date`
+* **Rows:** `Account`
+* **Columns:** `Description`
+* **Values:** `Sum of Deposit`
 
+### What to Check
+1. **Zero Net Balance:** Confirm the **Grand Total** for every ETF column (and overall) equals `0.00`.
+2. **Rounding Check:** Inspect the `Income:Distribution:Rounding` row—values should only be a few cents (`±0.01`–`0.02`). A larger figure indicates an unmapped or skipped component on that statement.
+3. **Match Tax Totals:** Compare the tax code row totals (`10L`, `13U`, `13C`, `13Q`, `18A`, `18H`, `20E`, and `20O`) directly against each ETF's Annual Tax Statement and your myTax / ATO pre-fill summary.
+4. **Verify Cash Distributions:** Confirm `Income:Distribution:Attributed` matches the total net cash distributions received in your bank or broker cash account for the financial year (and adjust for any distributions paid across the 30 June financial year boundary).
+
+## Importing into GnuCash
+
+1. Open GnuCash and select **File → Import → Import Transactions from CSV**.
+2. Select `all_splits.csv` (or an individual `*_split.csv`).
+3. Configure the import settings:
+   * **Encoding:** `UTF-8`
+   * **Separator:** `Comma`
+   * **Date Format:** `d-m-y`
+   * **Multi-split:** Checked
+   * **Leading lines to skip:** `1` for `all_splits.csv` (or `0` for a headerless `*_split.csv`)
+4. Map the columns:
+   * `Entity` → **Notes** (or **Memo** / **Num**, used to separate holdings/HINs)
+   * `Date` → **Date**
+   * `Description` → **Description**
+   * `Account` → **Account**
+   * `Deposit` → **Deposit**
+5. Review the account matches and complete the import.
+
+## Customising Account Mappings (`tax-acc.csv`)
+
+Edit `tax-acc.csv` to match your own chart of accounts:
+* **`Label`:** ATO tax return label (`13U`, `18A`, etc.) or statement component name.
+* **`Type`:** `DB` (negates positive amounts for income/cost-base reductions), `CR` (keeps positive sign for offsets/cash/cost-base increases), or `skip` (ignores subtotal lines).
+* **`Account`:** Target account path in your accounting software.
+
+## Building Releases (Maintainers)
+
+Releases are built manually via GitHub Actions (`.github/workflows/release.yml`):
+1. Go to **Actions → Manual Date-Based Release → Run workflow**.
+2. Leave `release_date` blank to use today's date (`yyyy.mm.dd` in Australia/Sydney time) or enter a custom date.
+3. The workflow strips `-dev`, compiles `etf2cb.exe` via PyInstaller, creates tag `v<yyyy.mm.dd>` with `etf2cb.exe`, `tax-acc.csv`, and `etf2cb-<version>-windows.zip`, and bumps `_version.py` in the repository to `<yyyy.mm.dd>-dev`.
+4. Same-day duplicate releases are blocked by default unless the **overwrite** checkbox is ticked.
 
 ## License
 
-This project is licensed under the terms of the GNU GPLv3 license.
+This project is licensed under the terms of the [GNU General Public License v3.0](https://gnu.org) (or any later version).

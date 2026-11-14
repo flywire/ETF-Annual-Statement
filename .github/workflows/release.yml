@@ -1,0 +1,129 @@
+name: Manual Date-Based Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_date:
+        description: 'Release version (yyyy.mm.dd) — leave blank for today (AEST/AEDT)'
+        required: false
+        default: ''
+      overwrite:
+        description: 'Overwrite existing release/tag if it already exists'
+        type: boolean
+        required: false
+        default: false
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Determine release version and check existing tags
+        id: ver
+        shell: pwsh
+        run: |
+          $inputVer = "${{ github.event.inputs.release_date }}".Trim()
+          if ([string]::IsNullOrEmpty($inputVer)) {
+            $auTime = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId((Get-Date), 'AUS Eastern Standard Time')
+            $ver = $auTime.ToString("yyyy.MM.dd")
+          } else {
+            $ver = $inputVer -replace '-dev$', ''
+          }
+          $tag = "v$ver"
+          $overwrite = "${{ github.event.inputs.overwrite }}" -eq "true"
+
+          $existingTag = git tag -l $tag
+          if ($existingTag) {
+            if (-not $overwrite) {
+              Write-Error "Release tag $tag already exists. Enable 'overwrite' or provide a distinct release_date (e.g. $ver.1). No files were changed."
+              exit 1
+            }
+            Write-Host "Overwrite enabled: moving existing tag $tag to current commit."
+            git tag -f $tag
+            git push -f origin $tag
+          }
+
+          echo "version=$ver" >> $env:GITHUB_OUTPUT
+          echo "dev_version=$ver-dev" >> $env:GITHUB_OUTPUT
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+          Write-Host "Release version: $ver | Next dev version: $ver-dev"
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+          enable-cache: true
+          cache-dependency-glob: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          uv venv
+          uv pip install -r requirements.txt pyinstaller
+
+      - name: Write stripped release version to _version.py
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.ver.outputs.version }}"
+          Set-Content -Path _version.py -Value "__version__ = `"$ver`""
+
+      - name: Verify stripped version
+        run: |
+          uv run etf2cb.py --version
+
+      - name: Compile etf2cb.exe
+        run: |
+          uv run pyinstaller --onefile --clean --name etf2cb etf2cb.py
+
+      - name: Verify compiled executable
+        run: |
+          .\dist\etf2cb.exe --version
+
+      - name: Package release assets
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release_assets
+          Copy-Item dist\etf2cb.exe release_assets\etf2cb.exe
+          Copy-Item tax-acc.csv release_assets\tax-acc.csv
+          Compress-Archive -Path release_assets\* -DestinationPath release_assets\etf2cb-${{ steps.ver.outputs.version }}-windows.zip
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Release ${{ steps.ver.outputs.version }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+          generate_release_notes: true
+          files: |
+            release_assets/etf2cb.exe
+            release_assets/tax-acc.csv
+            release_assets/etf2cb-${{ steps.ver.outputs.version }}-windows.zip
+
+      - name: Bump _version.py to <release>-dev and push to repo
+        shell: pwsh
+        run: |
+          $devVer = "${{ steps.ver.outputs.dev_version }}"
+          Set-Content -Path _version.py -Value "__version__ = `"$devVer`""
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _version.py
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "chore: bump version to $devVer [skip ci]"
+            git push
+          } else {
+            Write-Host "_version.py already set to $devVer — skipping commit."
+          }

@@ -1,3 +1,4 @@
-tabula-py
+pdfplumber
+python-dateutil
 # next line for developers
 # pyinstaller

@@ -5,3 +5,5 @@ _*/
 build/
 dist/
 *.bak
+*_split.csv
+all_splits.csv
